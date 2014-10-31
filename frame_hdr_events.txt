@@ -1,53 +1,63 @@
-run_hdr : {
-    id : hashed input
-    beamline_id : string
-    configs: {
-        config_0: {
-            id: hashed input
-            headers: list of run headers specific beamline_config belongs
-            beamline_id: string
-            custom: dictionary
-        },
-        ...
-    }
-    custom: ??
-    end_time : number
-    owner: string
-    scan_id: int
-    start_time : number
-    status: string (In Progress or Complete)
+header: {
+          _id: hashed mongodb id (bson.objectId)
+          scan_id: user defined identifier for the user (no type)
+          beamline_id: beamline  specific identifier (str)
+          status: scan/sweep in progress or Complete (str)
+          owner: header owner (str)
+          start_time: run header initialization timestamp (datetime.datetime)
+          end_time: run header closure timestamp (datetime.datetime)
+          tags: (soon to be obsolete) (list of str)
+          custom: flexible dict field for any name-value pair (dict)
 
-    event_descriptor: {
-        event_descriptor_0: {
-            id : hashed input
-            descriptor_name: string
-            event_type_id: integer
-            header_id: hashed input
-            tag: list
-            type_descriptor: ??
-            data_keys: list
-            events: {
-                event_0: {
-                    _id: hashed input
-                    data: {
-                        data_keys[0]: data0,
-                        data_keys[1]: data1,
-                        data_keys[N]: dataN
-                    }
-                    time: datetime (unix/epics?)
-                    description:
-                    event_descriptor_id: hashed input
-                    header_id: hashed input
-                    owner: string
-                    seq_no: int
-                },
-                event_1: {}
-                event_2: {}
-                ...
-            }
-        },
-        event_descriptor_1: {},
-        event_descriptor_2: {},
-        ...
-    }
+          beamline_config: {
+                            _id: hashed mongodb _id
+                            header_id: foreign key information linking beamline_config document to header
+          }
+          event_descriptors: {
+                              event_descriptor: {
+                                                  _id: hashed mongodb _id (bson.ObjectId)
+                                                  header_id: foreign key information linking beamline_config document to header (bson.ObjectId)
+                                                  event_type_id: event type integer descriptor(int)
+                                                  descriptor_name: event type string descriptor(str)
+                                                  event_type_descriptor: dictionary that defines fields and field data types for a given event type (dict)
+
+                                                    events: {
+                                                            event:{
+                                                                    even_descriptor_id: foreign key pointing back to event_descriptor(int)
+                                                                    description: User generated text field(str)
+                                                                    seq_no: sequence number for the data collected (int)
+                                                                    owner: data collection or system defined user info (str)
+                                                                    data: data point name-value pair container (dict)
+                                                            }
+
+
+                                                            event:{
+                                                                    even_descriptor_id: foreign key pointing back to event_descriptor(int)
+                                                                    description: User generated text field(str)
+                                                                    seq_no: sequence number for the data collected (int)
+                                                                    owner: data collection or system defined user info (str)
+                                                                    data: data point name-value pair container (dict)
+                                                            }
+
+
+                                                            event:{
+                                                                    even_descriptor_id: foreign key pointing back to event_descriptor(int)
+                                                                    description: User generated text field(str)
+                                                                    seq_no: sequence number for the data collected (int)
+                                                                    owner: data collection or system defined user info (str)
+                                                                    data: data point name-value pair container (dict)
+                                                            }
+
+
+
+                                                    }
+
+
+
+
+
+          }
+
+
+
 }
