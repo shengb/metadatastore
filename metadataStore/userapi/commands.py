@@ -24,12 +24,12 @@ def create(header=None, beamline_config=None, event_descriptor=None):
 
     :param beamline_config: BeamlineConfig attribute-value pairs
     :type beamline_config: dict
-    
+
     :param event_descriptor: EventDescriptor attribute-value pairs
     :type event_descriptor: dict
-    
+
     :raises: TypeError, ValueError, ConnectionFailure, NotUniqueError
-    
+
     :returns: None
 
     >>> sample_header = {'scan_id': 1234}
@@ -67,93 +67,50 @@ def create(header=None, beamline_config=None, event_descriptor=None):
     >>> sample_beamline_config = {'scan_id': 1234, 'config_params': {'attribute1': 'value1', 'attribute2': 'value2'}}
     >>> create(header=sample_header, event_descriptor=sample_event_descriptor, beamline_config=sample_beamline_config)
     """
+
+    def get_scan_id(conf_, desc):
+        try:
+            scan_id = int(conf_['scan_id'])
+        except ValueError:
+            raise TypeError('scan_id must be an integer')
+        except KeyError:
+            raise TypeError('scan_id is a required field in %s' % desc)
+
+        return scan_id
+
     if header is not None:
-        if isinstance(header, dict):
-            if 'scan_id' in header:
-                if isinstance(header['scan_id'], int):
-                    scan_id = header['scan_id']
-                else:
-                    raise TypeError('scan_id must be an integer')
-            else:
-                raise ValueError('scan_id is a required field')
-            if 'start_time' in header:
-                start_time = header['start_time']
-            else:
-                start_time = datetime.datetime.utcnow()
-            if 'owner' in header:
-                owner = header['owner']
-            else:
-                owner = getpass.getuser()
-            if 'beamline_id' in header:
-                beamline_id = header['beamline_id']
-            else:
-                beamline_id = None
-            if 'custom' in header:
-                custom = header['custom']
-            else:
-                custom = dict()
-            if 'tags' in header:
-                tags = header['tags']
-            else:
-                tags = list()
-            if 'status' in header:
-                status = header['status']
-            else:
-                status = 'In Progress'
-            try:
-                save_header(scan_id=scan_id, header_owner=owner, start_time=start_time, beamline_id=beamline_id,
-                            tags=tags, status=status, custom=custom)
-            except:
-                raise
-        else:
-            raise TypeError('Header must be a Python dictionary ')
+        scan_id = get_scan_id(header)
+
+        start_time = header.get('start_time', datetime.datetime.utcnow())
+        owner = header.get('owner', getpass.getuser())
+        beamline_id = header.get('beamline_id', None)
+        custom = header.get('custom', {})
+        tags = header.get('tags', [])
+        status = header.get('status', 'In Progress')
+
+        save_header(scan_id=scan_id, header_owner=owner, start_time=start_time, beamline_id=beamline_id,
+                    tags=tags, status=status, custom=custom)
 
     if beamline_config is not None:
-        if isinstance(beamline_config, dict):
-            if 'scan_id' in beamline_config:
-                scan_id = beamline_config['scan_id']
-            else:
-                raise ValueError('scan_id is a required field')
-            if 'config_params' in beamline_config:
-                config_params = beamline_config['config_params']
-            else:
-                config_params = dict()
-            try:
-                save_beamline_config(scan_id=scan_id, config_params=config_params)
-            except:
-                raise
-        else:
-            raise TypeError('BeamlineConfig must be a Python dictionary')
+        scan_id = get_scan_id(beamline_config)
+        config_params = beamline_config.get('config_params', {})
+
+        save_beamline_config(scan_id=scan_id, config_params=config_params)
 
     if event_descriptor is not None:
-        if isinstance(event_descriptor, dict):
-            if 'scan_id' in event_descriptor:
-                scan_id = event_descriptor['scan_id']
-            else:
-                raise ValueError('scan_id is required for EventDescriptor entries')
-            if 'event_type_id' in event_descriptor:
-                event_type_id = event_descriptor['event_type_id']
-            else:
-                event_type_id = None
-            if 'descriptor_name' in event_descriptor:
-                descriptor_name = event_descriptor['descriptor_name']
-            else:
-                raise ValueError('descriptor_name is required for EventDescriptor')
-            if 'type_descriptor' in event_descriptor:
-                type_descriptor = event_descriptor['type_descriptor']
-            else:
-                type_descriptor = dict()
-            if 'tag' in event_descriptor:
-                tag = event_descriptor['tag']
-            else:
-                tag = None
-            try:
-                insert_event_descriptor(scan_id=scan_id, event_type_id=event_type_id, descriptor_name=descriptor_name,
-                                        type_descriptor=type_descriptor, tag=tag)
-            except:
-                raise
-        else:
-            raise TypeError('EventDescriptor must be a Python dictionary')
+        scan_id = get_scan_id(event_descriptor)
+
+        try:
+            descriptor_name = event_descriptor['descriptor_name']
+        except KeyError as ex:
+            raise ValueError('%s is required for EventDescriptor' % ex.args[0])
+
+        event_type_id = event_descriptor.get('event_type_id', None)
+        type_descriptor = event_descriptor.get('type_descriptor', {})
+        tag = event_descriptor.get('tag', None)
+
+        insert_event_descriptor(scan_id=scan_id, event_type_id=event_type_id, descriptor_name=descriptor_name,
+                                type_descriptor=type_descriptor, tag=tag)
 
 
 def record(scan_id, descriptor_name, seq_no, owner=getpass.getuser(), data=dict(), description=None):
@@ -162,22 +119,22 @@ def record(scan_id, descriptor_name, seq_no, owner=getpass.getuser(), data=dict(
 
     :param scan_id: Unique run identifier
     :type scan_id: int, required
-    
+
     :param descriptor_name: EventDescriptor that serves as an Event header
     :type descriptor_name: str, required
-    
+
     :param seq_no: Data point sequence number
     :type seq_no: int, required
 
     :param owner: Run owner(default: unix session owner)
     :type owner: str, optional
-    
+
     :param data: Serves as an experimental data storage structure
     :type data: dict, optional
-    
+
     :param description: Provides user specified text to describe a given event
     :type description: str, optional
-    
+
     :raises: ConnectionFailure, NotUniqueError, ValueError
 
     >>> record(scan_id=135, descriptor_name='some_scan', seq_no=0)
@@ -362,7 +319,7 @@ def search(owner=None, start_time=None, end_time=None, tags=None, scan_id=None, 
                   if it's value is "True" or "False" and
     :type data: bool, optional
 
-    :raise: TypeError, OperationError, ValueError
+    :raise: TypeError, OperationFailure, ValueError
 
     :returns list :
         If the combination of search parameters finds something, a list of
