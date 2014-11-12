@@ -13,16 +13,16 @@ def get_calib_dict(run_header):
 
     :param run_header: Run header to convert events to lists. Can only be one header.
     :type run_header: dict
-    
-    :returns: Dictionary that contains all information inside the run_header's 
+
+    :returns: Dictionary that contains all information inside the run_header's
     beamline_config key. If there are multiple 'configs' then the return
     value is a nested dictionary keyed on config_# for the number of config
-    
+
     :rtype: dict
 
     bool
         True: Multiple 'config' sections were present, dict is a nested dict
-        
+
         False: One 'config' section was present, dict is not a nested dict
     """
     nested = True
@@ -49,7 +49,7 @@ def get_data_keys(run_header):
     :rtype: list
     """
     try:
-        for ev_desc_key, ev_desc_dict in six.iteritems(run_header[u'event_descriptors']):
+        for ev_desc_key, ev_desc_dict in six.iteritems(run_header['event_descriptors']):
             descriptor_name = ev_desc_dict['descriptor_name']
             try:
                 for ev_key, ev_dict in six.iteritems(ev_desc_dict['events']):
@@ -81,7 +81,7 @@ def get_data_keys_futureproof(run_header):
     descriptor_name. If descriptor_name is not unique for all
     event_descriptors, see Note
 
-    **Note:** The descriptor_name field in event_descriptors is assumed to be unique. 
+    **Note:** The descriptor_name field in event_descriptors is assumed to be unique.
     If it is not, then append the last four characters of _id to it.
     Ideally this would be something more like a PV name and less hostile than the hashed _id field
 
@@ -90,7 +90,7 @@ def get_data_keys_futureproof(run_header):
     try:
         try:
             for (ev_desc_key, ev_desc_dict) in six.iteritems(
-                    run_header[u'event_descriptors']):
+                    run_header['event_descriptors']):
                 descriptor_name = ev_desc_dict['descriptor_name']
                 ev_keys[ev_desc_key] = {
                     'name': ev_desc_dict['descriptor_name'],
@@ -216,7 +216,7 @@ if __name__ == "__main__":
     print('search_dict: {0}'.format(return_dict))
     keys = get_data_keys(return_dict)
     print('keys: {0}'.format(keys))
-    data = listify(return_dict, u'ub')
+    data = listify(return_dict, 'ub')
     print("data: {0}".format(data))
     print("search_dict keys: {0}".format(list(return_dict)))
 
