@@ -11,6 +11,8 @@ from metadataStore.sessionManager.databaseInit import metadataLogger
 
 from metadataStore.dataapi.commands import save_header, save_beamline_config, insert_event, insert_event_descriptor, find
 
+from metadataStore.utilities import get_scan_id
+
 
 logger = metadataLogger.logger
 
@@ -68,18 +70,8 @@ def create(header=None, beamline_config=None, event_descriptor=None):
     >>> create(header=sample_header, event_descriptor=sample_event_descriptor, beamline_config=sample_beamline_config)
     """
 
-    def get_scan_id(conf_, desc):
-        try:
-            scan_id = int(conf_['scan_id'])
-        except ValueError:
-            raise TypeError('scan_id must be an integer')
-        except KeyError:
-            raise TypeError('scan_id is a required field in %s' % desc)
-
-        return scan_id
-
     if header is not None:
-        scan_id = get_scan_id(header)
+        scan_id = get_scan_id(header, 'header')
 
         start_time = header.get('start_time', datetime.datetime.utcnow())
         owner = header.get('owner', getpass.getuser())
@@ -92,13 +84,13 @@ def create(header=None, beamline_config=None, event_descriptor=None):
                     tags=tags, status=status, custom=custom)
 
     if beamline_config is not None:
-        scan_id = get_scan_id(beamline_config)
+        scan_id = get_scan_id(beamline_config, 'beamline_config')
         config_params = beamline_config.get('config_params', {})
 
         save_beamline_config(scan_id=scan_id, config_params=config_params)
 
     if event_descriptor is not None:
-        scan_id = get_scan_id(event_descriptor)
+        scan_id = get_scan_id(event_descriptor, 'event_descriptor')
 
         try:
             descriptor_name = event_descriptor['descriptor_name']

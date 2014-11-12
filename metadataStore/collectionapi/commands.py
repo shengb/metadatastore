@@ -4,6 +4,7 @@ import getpass
 from metadataStore.dataapi.commands import save_header, save_beamline_config, insert_event_descriptor, insert_event
 from metadataStore.dataapi.commands import save_bulk_header
 from metadataStore.dataapi.commands import find, get_event_descriptor_hid_edid, db
+from metadataStore.utilities import get_scan_id
 
 
 def create(header=None, beamline_config=None, event_descriptor=None):
@@ -48,7 +49,7 @@ def create(header=None, beamline_config=None, event_descriptor=None):
     >>> sample_header={'scan_id': 1235, 'start_time': datetime.datetime.utcnow(), 'beamline_id': 'my_beamline',
     ...                 'owner': 'arkilic', 'custom': {'attribute1': 'value1', 'attribute2':'value2'}})
     >>> create(event_descriptor=sample_event_descriptor, header=sample_header)
-    
+
     >>> create(beamline_config={'scan_id': 1234})
 
     >>> create(beamline_config={'scan_id': 1234, 'config_params': {'attribute1': 'value1', 'attribute2': 'value2'}})
@@ -61,137 +62,47 @@ def create(header=None, beamline_config=None, event_descriptor=None):
     >>> create(header=sample_header, event_descriptor=sample_event_descriptor, beamline_config=sample_beamline_config)
 
     """
+    def parse_single_header(hdr):
+        scan_id = get_scan_id(hdr, 'header')
+        start_time = hdr.get('start_time', datetime.datetime.utcnow())
+        header_owner = hdr.get('owner', getpass.getuser())
+        beamline_id = hdr.get('beamline_id', None)
+        custom = hdr.get('custom', {})
+        tags = hdr.get('tags', [])
+        status = hdr.get('status', 'In Progress')
+        header_versions = hdr.get('header_versions', [])
+
+        locals_ = locals()
+        return dict((key, locals_[key]) for key in locals_.keys()
+                    if key != 'hdr')
+
     if header is not None:
         if isinstance(header, dict):
-            if 'scan_id' in header:
-                if isinstance(header['scan_id'], int):
-                    scan_id = header['scan_id']
-                else:
-                    raise TypeError('scan_id must be an integer')
-            else:
-                raise ValueError('scan_id is a required field')
-            if 'start_time' in header:
-                start_time = header['start_time']
-            else:
-                start_time = datetime.datetime.utcnow()
-            if 'owner' in header:
-                owner = header['owner']
-            else:
-                owner = getpass.getuser()
-            if 'beamline_id' in header:
-                beamline_id = header['beamline_id']
-            else:
-                beamline_id = None
-            if 'custom' in header:
-                custom = header['custom']
-            else:
-                custom = dict()
-            if 'tags' in header:
-                tags = header['tags']
-            else:
-                tags = list()
-            if 'header_versions' in header:
-                header_versions = header['header_versions']
-            else:
-                header_versions = list()
-            if 'status' in header:
-                status = header['status']
-            else:
-                status = 'In Progress'
-            try:
-                save_header(scan_id=scan_id, header_owner=owner, start_time=start_time, beamline_id=beamline_id,
-                            status=status, tags=tags, header_versions=header_versions, custom=custom)
-            except:
-                raise
+            save_header(**parse_single_header(header))
         elif isinstance(header, list):
-            header_list = list()
-            for single_header in header:
-                if 'scan_id' in single_header:
-                    if isinstance(single_header['scan_id'], int):
-                        scan_id = single_header['scan_id']
-                    else:
-                        raise TypeError('scan_id must be an integer')
-                else:
-                    raise ValueError('scan_id is a required field')
-                if 'start_time' in single_header:
-                    start_time = single_header['start_time']
-                else:
-                    start_time = datetime.datetime.utcnow()
-                if 'owner' in single_header:
-                    owner = single_header['owner']
-                else:
-                    owner = getpass.getuser()
-                if 'beamline_id' in single_header:
-                    beamline_id = single_header['beamline_id']
-                else:
-                    beamline_id = None
-                if 'custom' in single_header:
-                    custom = single_header['custom']
-                else:
-                    custom = dict()
-                if 'tags' in single_header:
-                    tags = single_header['tags']
-                else:
-                    tags = list()
-                if 'header_versions' in single_header:
-                    header_versions = single_header['header_versions']
-                else:
-                    header_versions = list()
-                if 'status' in single_header:
-                    status = single_header['status']
-                else:
-                    status = 'In Progress'
-                header_list.append(single_header)
+            header_list = [parse_single_header(hdr) for hdr in header]
             save_bulk_header(header_list=header_list)
         else:
             raise TypeError('Header must be a Python dictionary or list of Python dictionaries ')
 
     if beamline_config is not None:
-        if isinstance(beamline_config, dict):
-            if 'scan_id' in beamline_config:
-                scan_id = beamline_config['scan_id']
-            else:
-                raise ValueError('scan_id is a required field')
-            if 'config_params' in beamline_config:
-                config_params = beamline_config['config_params']
-            else:
-                config_params = dict()
-            try:
-                save_beamline_config(scan_id=scan_id, config_params=config_params)
-            except:
-                raise
-        else:
-            raise TypeError('BeamlineConfig must be a Python dictionary')
+        scan_id = get_scan_id(beamline_config, 'beamline_config')
+        config_params = beamline_config.get('config_params', {})
+
+        save_beamline_config(scan_id=scan_id, config_params=config_params)
 
     if event_descriptor is not None:
-        if isinstance(event_descriptor, dict):
-            if 'scan_id' in event_descriptor:
-                scan_id = event_descriptor['scan_id']
-            else:
-                raise ValueError('scan_id is required for EventDescriptor entries')
-            if 'event_type_id' in event_descriptor:
-                event_type_id = event_descriptor['event_type_id']
-            else:
-                event_type_id = None
-            if 'descriptor_name' in event_descriptor:
-                descriptor_name = event_descriptor['descriptor_name']
-            else:
-                raise ValueError('descriptor_name is required for EventDescriptor')
-            if 'type_descriptor' in event_descriptor:
-                type_descriptor = event_descriptor['type_descriptor']
-            else:
-                type_descriptor = dict()
-            if 'tag' in event_descriptor:
-                tag = event_descriptor['tag']
-            else:
-                tag = None
-            try:
-                insert_event_descriptor(scan_id=scan_id, event_type_id=event_type_id, descriptor_name=descriptor_name,
-                                        type_descriptor=type_descriptor, tag=tag)
-            except:
-                raise
-        else:
-            raise TypeError('EventDescriptor must be a Python dictionary')
+        scan_id = get_scan_id(event_descriptor, 'event_descriptor')
+        event_type_id = event_descriptor.get('event_type_id', None)
+        type_descriptor = event_descriptor.get('type_descriptor', {})
+        tag = event_descriptor.get('tag', None)
+        try:
+            descriptor_name = event_descriptor['descriptor_name']
+        except KeyError as ex:
+            raise ValueError('%s is required for EventDescriptor' % ex.args[0])
+
+        insert_event_descriptor(scan_id=scan_id, event_type_id=event_type_id, descriptor_name=descriptor_name,
+                                type_descriptor=type_descriptor, tag=tag)
 
 
 def record(event=dict()):
@@ -220,64 +131,30 @@ def record(event=dict()):
     >>> record(event={'scan_id': 1344, 'descriptor_name': 'ascan', 'owner': 'arkilic', 'seq_no': 0,
                   ... 'data':{'motor1': 13.4, 'image1': '/home/arkilic/sample.tiff'}},'description': 'Linear scan')
     """
-    if isinstance(event, dict):
-        if 'scan_id' in event:
-            scan_id = event['scan_id']
-        else:
-            raise ValueError('scan_id is required in order to record an event')
-        if 'descriptor_name' in event:
-            descriptor_name = event['descriptor_name']
-        else:
-            raise ValueError('Descriptor is required in order to record an event')
-        if 'description' in event:
-            description = event['description']
-        else:
-            description = None
-        if 'owner' in event:
-            owner = event['owner']
-        else:
-            owner = getpass.getuser()
-        if 'seq_no' in event:
-            seq_no = event['seq_no']
-        else:
-            raise ValueError('seq_no is required field')
-        if 'data' in event:
-            data = event['data']
-        else:
-            data = dict()
+
+    def parse_single_event(evt):
+        scan_id = get_scan_id(evt, 'event')
+
         try:
-            insert_event(scan_id=scan_id, descriptor_name=descriptor_name, owner=owner, seq_no=seq_no, data=data,
-                         description=description)
-        except:
-            raise
+            descriptor_name = evt['descriptor_name']
+            seq_no = evt['seq_no']
+        except KeyError as ex:
+            raise ValueError('%s is required in order to record an event' % ex.args[0])
+
+        description = evt.get('description', None)
+        owner = evt.get('owner', getpass.getuser())
+        data = evt.get('data', {})
+        locals_ = locals()
+        return dict((key, locals_[key]) for key in locals_.keys()
+                    if key != 'evt')
+
+    if isinstance(event, dict):
+        evt = parse_single_event(event)
+        insert_event(**evt)
     elif isinstance(event, list):
             bulk = db['event'].initialize_ordered_bulk_op()
             for single_event in event:
-                composed_dict = dict()
-                if 'scan_id' in single_event:
-                    composed_dict['scan_id'] = single_event['scan_id']
-                else:
-                    raise ValueError('scan_id is required in order to record an single_event')
-                if 'descriptor_name' in single_event:
-                    composed_dict['descriptor_name'] = single_event['descriptor_name']
-                else:
-                    raise ValueError('Descriptor is required in order to record an single_event')
-                if 'description' in single_event:
-                    composed_dict['description'] = single_event['description']
-                else:
-                    composed_dict['description'] = None
-                if 'owner' in single_event:
-                    composed_dict['owner'] = single_event['owner']
-                else:
-                    composed_dict['owner'] = getpass.getuser()
-                if 'seq_no' in single_event:
-                    composed_dict['seq_no'] = single_event['seq_no']
-                else:
-                    raise ValueError('seq_no is required field')
-                if 'data' in single_event:
-                    composed_dict['data'] = single_event['data']
-                else:
-                    composed_dict['data'] = dict()
+                composed_dict = parse_single_event(single_event)
                 header_id, descriptor_id = get_event_descriptor_hid_edid(single_event['descriptor_name'],
                                                                          single_event['scan_id'])
                 composed_dict['header_id'] = header_id

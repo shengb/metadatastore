@@ -207,6 +207,27 @@ def tablify(run_headers):
     return table
 
 
+def get_scan_id(conf_, desc=None):
+    '''
+    Get the scan_id from a dictionary-like object.
+
+    :raises: TypeError, ValueError
+
+    :returns: integer scan_id
+    '''
+    try:
+        scan_id = int(conf_['scan_id'])
+    except ValueError:
+        raise TypeError('scan_id must be an integer')
+    except KeyError:
+        if desc is not None:
+            raise ValueError('scan_id is a required field in %s' % desc)
+        else:
+            raise ValueError('scan_id is a required field')
+
+    return scan_id
+
+
 if __name__ == "__main__":
     from metadataStore.userapi.commands import search
     return_dict = search(data=True, scan_id=388, owner='edill')
