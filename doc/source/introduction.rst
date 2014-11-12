@@ -35,8 +35,8 @@ Installation
 .. automodule:::: ../../metadataStore/dataapi/commands.py
 
 
-MongoDb Installation
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+MongoDb Installation under Debian
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 *Step 1*::
 
@@ -44,20 +44,23 @@ MongoDb Installation
 
 *Step 2*::
 
-% sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 7F0CEB10
+% echo 'deb http://downloads-distro.mongodb.org/repo/debian-sysvinit dist 10gen' | sudo tee /etc/apt/sources.list.d/mongodb.list
 
 *Step 3*::
 
 % sudo apt-get update
 
-
 *Step 4*::
 
-% sudo apt-get install -y mongodb-org
-
-*Step 5*::
-
 % sudo apt-get install -y mongodb-org=2.6.1 mongodb-org-server=2.6.1 mongodb-org-shell=2.6.1 mongodb-org-mongos=2.6.1mongodb-org-tools=2.6.1
+
+*Step 5* (to stop apt-get from updating the version in the future, may be optional)::
+
+% echo "mongodb-org hold" | sudo dpkg --set-selections
+% echo "mongodb-org-server hold" | sudo dpkg --set-selections
+% echo "mongodb-org-shell hold" | sudo dpkg --set-selections
+% echo "mongodb-org-mongos hold" | sudo dpkg --set-selections
+% echo "mongodb-org-tools hold" | sudo dpkg --set-selections
 
 
 metadataStore Installation
