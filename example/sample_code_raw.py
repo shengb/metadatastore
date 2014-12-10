@@ -25,10 +25,33 @@ hdr3 = save_beamline_config(scan_id=h_id, config_params={'nam1': 'val'})
 end = time.time()
 
 start = time.time()
-insert_event(scan_id=h_id, descriptor_name='myscan', owner='arkilic', seq_no=0, data={'armanarkilic.VAL':12.44})
+insert_event(scan_id=h_id, descriptor_name='myscan', owner='arkilic', seq_no=0, data={'armanarkilic.VAL':'value'})
 end = time.time()
 print('Event insert time is ' + str((end-start)*1000) + ' ms')
 
 sample_result = find(owner='arkilic', data=True)
 print sample_result.keys()
 print sample_result['header_0']['event_descriptors']['event_descriptor_0']
+
+
+start = time.time()
+insert_event_descriptor(scan_id=h_id, event_type_id=1, descriptor_name='my_new_scan', data_keys=['armanarkilic.RBV',
+                                                                                                 'armanarkilic.VAL'])
+end = time.time()
+print('Descriptor insert time is ' + str((end-start)*1000) + ' ms')
+
+start = time.time()
+hdr3 = save_beamline_config(scan_id=h_id, config_params={'nam1': 'val'})
+end = time.time()
+
+start = time.time()
+insert_event(scan_id=h_id, descriptor_name='my_new_scan', owner='arkilic', seq_no=0, data={'armanarkilic.VAL': 'value1',
+                                                                                           'armanarkilic.RBV': 'value2'})
+end = time.time()
+print('Event insert time is ' + str((end-start)*1000) + ' ms')
+
+sample_result = find(owner='arkilic', data=True)
+print sample_result.keys()
+print sample_result.keys()
+for header in sample_result.keys():
+    print sample_result[header]['event_descriptors']
