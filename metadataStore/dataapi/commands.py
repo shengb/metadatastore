@@ -471,6 +471,14 @@ def find(header_id=None, scan_id=None, owner=None, start_time=None, beamline_id=
             i = 0
             header[key]['event_descriptors'] = dict()
             for e_d in event_desc:
+                tmp_data_keys = e_d['data_keys']
+                new_data_keys = list()
+                for raw_key in tmp_data_keys:
+                    if '[dot]' in raw_key:
+                        new_data_keys.append(raw_key.replace('[dot]', '.'))
+                    else:
+                        new_data_keys.append(raw_key)
+                e_d['data_keys'] = new_data_keys
                 header[key]['event_descriptors']['event_descriptor_' + str(i)] = e_d
                 if data is True:
                     events = find_event(descriptor_id=e_d['_id'], event_query_dict=event_classifier)
@@ -520,7 +528,6 @@ def __decode_e_d_cursor(cursor_object):
         new_data_keys = list()
         for raw_key in tmp_data_keys:
             if '[dot]' in raw_key:
-                print 'Here it is ', '\n===================='
                 new_data_keys.append(raw_key.replace('[dot]', '.'))
             else:
                 new_data_keys.append(raw_key)
@@ -646,6 +653,9 @@ def find2(header_id=None, scan_id=None, owner=None, start_time=None, beamline_id
      >>> find(event_time=datetime.datetime(2014, 6, 13, 17, 51, 21, 987000)
      >>> find(event_time={'start': datetime.datetime(2014, 6, 13, 17, 51, 21, 987000})
     """
+
+    #TODO: Add dot to . replacement to find2. Use find() as a reference.
+
     query_dict = dict()
     try:
         coll = db['header']
