@@ -6,7 +6,7 @@ def validate_time(time_entry):
     try:
         datetime.datetime.fromtimestamp(time_entry)
     except Exception:
-        raise TypeError('time must be a timestamp (float).'
+        raise TypeError('Time must be a timestamp (float).'
                         '\nYou provided: {}'
                         '\n\tIt has type: {}'.format(time_entry,
                                                      type(time_entry)))

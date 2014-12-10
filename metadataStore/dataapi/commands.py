@@ -166,15 +166,37 @@ def insert_event_descriptor(scan_id, event_type_id, data_keys, descriptor_name=N
     ... type_descriptor={'custom_field': 'value', 'custom_field2': 'value2'}, tag='analysis')
     """
     header_id = get_header_id(scan_id)
+    formatted_data_keys = replace_dot(data_keys)
     try:
         event_descriptor = EventDescriptor(header_id=header_id, event_type_id=event_type_id,
                                            descriptor_name=descriptor_name, type_descriptor=type_descriptor,
-                                           data_keys=data_keys,
+                                           data_keys=formatted_data_keys,
                                            tag=tag).save(wtimeout=100, write_concern={'w': 1})
     except:
         metadataLogger.logger.warning('EventDescriptor cannot be created')
         raise
     return event_descriptor
+
+
+def replace_dot(keys):
+    formatted_keys = list()
+    if isinstance(keys, list):
+        for entry in keys:
+            if '.' in entry:
+                if isinstance(entry, str):
+                    formatted_keys.append(entry.replace('.', '[dot]'))
+                else:
+                    raise TypeError('data_key items must be strings')
+            else:
+                formatted_keys.append(entry)
+                print 'there is no dot!'
+    else:
+        raise TypeError('data_keys must be a list')
+    return formatted_keys
+
+
+def inverse_dot(data_keys):
+    pass
 
 
 def insert_bulk_event(event_list):
@@ -250,10 +272,12 @@ def insert_event(scan_id, descriptor_name, seq_no, description=None,
     TypeError, OperationFailure, ConnectionFailure
 
     """
+
     if owner is None:
         owner = getpass.getuser()
     header_id, descriptor_id = get_event_descriptor_hid_edid(descriptor_name,
                                                              scan_id)
+
     try:
         event = Event(descriptor_id=descriptor_id, header_id=header_id,
                       description=description, owner=owner, seq_no=seq_no,
