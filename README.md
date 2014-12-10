@@ -1,4 +1,4 @@
 metadataStore
 =============
 
-NSLS2 Beamlines MetadataStore implemented in MongoDB
+NSLS2 Beamlines MetadataStore prototype implemented in MongoDB
