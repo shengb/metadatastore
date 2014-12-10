@@ -58,4 +58,3 @@ for header in sample_result.keys():
 
 print find(scan_id=h_id)
 print find(scan_id='last')
-print find(scan_id=h_id)
