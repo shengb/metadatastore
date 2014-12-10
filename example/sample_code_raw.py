@@ -29,9 +29,6 @@ insert_event(scan_id=h_id, descriptor_name='myscan', owner='arkilic', seq_no=0, 
 end = time.time()
 print('Event insert time is ' + str((end-start)*1000) + ' ms')
 
-
-
 sample_result = find(owner='arkilic', data=True)
 print sample_result.keys()
-print sample_result
-
+print sample_result['header_0']['event_descriptors']['event_descriptor_0']

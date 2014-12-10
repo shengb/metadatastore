@@ -1,8 +1,6 @@
 __author__ = 'arkilic'
-import six
 import getpass
 import time
-import re
 import os
 from pymongo.errors import OperationFailure
 from metadataStore.sessionManager.databaseInit import db
@@ -192,10 +190,6 @@ def replace_dot(keys):
     else:
         raise TypeError('data_keys must be a list')
     return formatted_keys
-
-
-def inverse_dot(data_keys):
-    pass
 
 
 def insert_bulk_event(event_list):
@@ -492,13 +486,13 @@ def find(header_id=None, scan_id=None, owner=None, start_time=None, beamline_id=
     return header
 
 
-def __validate_time(time_entry_list):
-    for entry in time_entry_list:
-        if isinstance(entry, datetime.datetime):
-            flag = True
-        else:
-            raise TypeError('Date must be datetime object')
-    return flag
+def __inverse_dot(data_key):
+    key = None
+    if '[dot]' in data_key:
+        key = data_key.replace('[dot]', '.')
+    else:
+        key = data_key
+    return key
 
 
 def __decode_hdr_cursor(cursor_object):
@@ -522,14 +516,34 @@ def __decode_bcfg_cursor(cursor_object):
 def __decode_e_d_cursor(cursor_object):
     event_descriptors = dict()
     for temp_dict in cursor_object:
+        tmp_data_keys = temp_dict['data_keys']
+        new_data_keys = list()
+        for raw_key in tmp_data_keys:
+            if '[dot]' in raw_key:
+                print 'Here it is ', '\n===================='
+                new_data_keys.append(raw_key.replace('[dot]', '.'))
+            else:
+                new_data_keys.append(raw_key)
+        temp_dict['data_keys'] = new_data_keys
         event_descriptors['event_descriptor_' + str(temp_dict['_id'])] = temp_dict
     return event_descriptors
 
 
 def __decode_cursor(cursor_object):
+    """
+    Parses pymongo event cursor and returns an event dictionary
+    :param cursor_object: event cursor
+    :return:
+    """
     events = dict()
+    new_data_dict = dict()
     i = 0
     for temp_dict in cursor_object:
+        tmp_data_keys = temp_dict['data'].keys()
+        for raw_key in tmp_data_keys:
+            content = temp_dict['data'][raw_key]
+            new_data_dict[__inverse_dot(raw_key)] = content
+        temp_dict['data'] = new_data_dict
         events['event_' + str(i)] = temp_dict
         i += 1
     return events
