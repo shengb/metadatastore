@@ -189,7 +189,6 @@ def replace_dot(keys):
                     raise TypeError('data_key items must be strings')
             else:
                 formatted_keys.append(entry)
-                print 'there is no dot!'
     else:
         raise TypeError('data_keys must be a list')
     return formatted_keys
@@ -238,54 +237,66 @@ def get_event_descriptor_hid_edid(name, s_id):
 def insert_event(scan_id, descriptor_name, seq_no, description=None,
                  owner=None, data=None):
     """
-    Create event entries that record experimental data
+    :param descriptor_name: event_descriptor name. Used to find the foreign key for event_descriptor
+    :type descriptor_id: str
 
-    Parameters
-    ----------
-    scan_id : ??
-        The scan identifier
+    :param description: User generated text field
+    :type description: str
 
-    descriptor_name : str
-         EventDescriptor name that contains info regarding set of
-         events to be saved
+    :param seq_no: sequence number for the data collected
+    :type seq_no: int
 
-    seq_no : int
-        specifies the event's place in data sequence within a the event
-        descriptor set
+    :param owner: data collection or system defined user info
+    :type owner: str
 
-    description : str, optional
-        User generated optional string to be used as descriptors
-
-    owner : str, optional
-         Event owner (default: unix session owner)
-
-    data : dict, optional
-        Data Collection routine defined name-value pairs
-
-    Returns
-    -------
-    event : str
-       uuid from the mongo db
-
-    Raises
-    ------
-    TypeError, OperationFailure, ConnectionFailure
+    :param data: data point name-value pair container
+    :type data: dict
 
     """
-
     if owner is None:
         owner = getpass.getuser()
+    if data is None:
+        data = dict()
+    if description is None:
+        description = 'None'
     header_id, descriptor_id = get_event_descriptor_hid_edid(descriptor_name,
                                                              scan_id)
 
+
+    desc_data_keys = db['event_type_descriptor'].find_one({'_id': descriptor_id})['data_keys']
+    data_keys = data.keys()
+    formatted_data_keys = replace_dot(data_keys)
+    formatted_data = dict()
+    for entry in data_keys:
+        temp = data[entry]
+        if '.' in entry:
+            new_key = entry.replace('.', '[dot]')
+            formatted_data[new_key] = temp
+        else:
+            formatted_data[entry] = temp
+    __validate_keys(formatted_data_keys, desc_data_keys)
     try:
         event = Event(descriptor_id=descriptor_id, header_id=header_id,
                       description=description, owner=owner, seq_no=seq_no,
-                      data=data).save(wtimeout=100, write_concern={'w': 1})
+                      data=formatted_data).save(wtimeout=100, write_concern={'w': 1})
     except:
         metadataLogger.logger.warning('Event cannot be recorded')
         raise
     return event
+
+
+def __validate_keys(target, norm):
+    """
+    Given two set of keys, check if keys in target are covered within the norm
+    :param target: keys to be evaluated
+    :param norm: norm list to evaluate the keys
+    :return: None
+    """
+    for key in target:
+        if key in norm:
+            pass
+        else:
+            raise ValueError('Data keys for event data and descriptor data do not match! Check ' + str(key))
 
 
 def save_beamline_config(scan_id, config_params):
