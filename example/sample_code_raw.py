@@ -57,3 +57,5 @@ for header in sample_result.keys():
     print sample_result[header]['event_descriptors']
 
 print find(scan_id=h_id)
+print find(scan_id='last')
+print find(scan_id=h_id)

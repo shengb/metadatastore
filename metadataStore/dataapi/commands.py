@@ -416,6 +416,14 @@ def find(header_id=None, scan_id=None, owner=None, start_time=None, beamline_id=
         event_desc = find_event_descriptor(header['_id'])
         i = 0
         for e_d in event_desc:
+            tmp_data_keys = e_d['data_keys']
+            new_data_keys = list()
+            for raw_key in tmp_data_keys:
+                if '[dot]' in raw_key:
+                    new_data_keys.append(raw_key.replace('[dot]', '.'))
+                else:
+                    new_data_keys.append(raw_key)
+            e_d['data_keys'] = new_data_keys
             header['event_descriptor_' + str(i)] = e_d
             events = find_event(descriptor_id=e_d['_id'])
             if data is True:
@@ -681,6 +689,14 @@ def find2(header_id=None, scan_id=None, owner=None, start_time=None, beamline_id
         event_desc = find_event_descriptor(header['_id'])
         i = 0
         for e_d in event_desc:
+            tmp_data_keys = e_d['data_keys']
+            new_data_keys = list()
+            for raw_key in tmp_data_keys:
+                if '[dot]' in raw_key:
+                    new_data_keys.append(raw_key.replace('[dot]', '.'))
+                else:
+                    new_data_keys.append(raw_key)
+            e_d['data_keys'] = new_data_keys
             header['event_descriptor_' + str(i)] = e_d
             events = find_event(descriptor_id=e_d['_id'])
             if data is True:
