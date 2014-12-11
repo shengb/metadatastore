@@ -2,8 +2,8 @@ __author__ = 'arkilic'
 import time
 import random
 from metadataStore.dataapi.commands import save_header, insert_event_descriptor, save_beamline_config, insert_event
-from metadataStore.dataapi.commands import find
-
+from metadataStore.dataapi.commands import find, find_last
+from pprint import pprint
 
 h_id = random.randint(0, 200000)
 h_id2 = random.randint(0, 200000)
@@ -51,10 +51,7 @@ end = time.time()
 print('Event insert time is ' + str((end-start)*1000) + ' ms')
 
 sample_result = find(owner='arkilic', data=True)
-print sample_result.keys()
-print sample_result.keys()
-for header in sample_result.keys():
-    print sample_result[header]['event_descriptors']
 
-print find(scan_id=h_id)
-print find(scan_id='last')
+
+
+pprint(find_last()[0])
