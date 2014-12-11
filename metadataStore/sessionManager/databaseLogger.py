@@ -17,7 +17,6 @@ class DbLogger(object):
         Constructor: MongoClient, Database, and native python loggers are created
         """
         self.logger = logging.getLogger('MetadataStore')
-        print self.logger
         log_root = '/tmp/MetaDataStore'
         try:
             log_handler = create_file_logger(log_root)

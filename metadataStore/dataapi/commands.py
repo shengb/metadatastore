@@ -803,3 +803,73 @@ def __get_event_keys2(event_descriptor):
     else:
         pass
     return ev_keys
+
+
+def find_last():
+    """
+    Returns the most recently created run_header and associated info:
+            list of event descriptors that correspond to the run header
+            list of events that correspond to the run header
+    :return: run_header(dict), event_descriptors(list),  events(list), beamline_config(list)
+    :rtype: tuple
+    """
+    event_descriptors = list()
+    events = list()
+    beamline_configs = list()
+    try:
+        coll = db['header']
+    except:
+        metadataLogger.logger.warning('Collection Header cannot be accessed')
+        raise
+    header_cursor = coll.find().sort([('end_time', -1)]).limit(1)
+    header = header_cursor[0]
+    beamline_cfg_crsr = find_beamline_config(header_id=header['_id'])
+    for bcfg in beamline_cfg_crsr:
+        beamline_configs.append(bcfg)
+    event_desc_cursor = find_event_descriptor(header['_id'])
+    event_descriptors = __decode_e_d_cursor_last(event_desc_cursor)
+    for event_descriptor in event_descriptors:
+        ev_cursor = find_event(descriptor_id=event_descriptor['_id'])
+        events.extend(__decode_cursor_event_last(ev_cursor))
+    return header, event_descriptors, events, beamline_configs
+
+
+def __decode_cursor_event_last(cursor_object):
+    """
+    Parses pymongo event cursor and returns an event list. Replaces the [dot] with .
+    :param cursor_object: event cursor
+    :return: events
+    :rtype: list
+    """
+    events = list()
+    new_data_dict = dict()
+    for temp_dict in cursor_object:
+        tmp_data_keys = temp_dict['data'].keys()
+        for raw_key in tmp_data_keys:
+            content = temp_dict['data'][raw_key]
+            new_data_dict[__inverse_dot(raw_key)] = content
+        temp_dict['data'] = new_data_dict
+        events.append(temp_dict)
+    return events
+
+
+def __decode_e_d_cursor_last(cursor_object):
+    """
+    Parses pymongo event_descriptor cursor and returns an event desc list. Replaces the [dot] with .
+    :param cursor_object: event cursor
+    :return: event descriptors
+    :rtype: list
+    """
+    event_descriptors = list()
+    for temp_dict in cursor_object:
+        tmp_data_keys = temp_dict['data_keys']
+        new_data_keys = list()
+        for raw_key in tmp_data_keys:
+            if '[dot]' in raw_key:
+                new_data_keys.append(raw_key.replace('[dot]', '.'))
+            else:
+                new_data_keys.append(raw_key)
+        temp_dict['data_keys'] = new_data_keys
+        event_descriptors.append(temp_dict)
+    return event_descriptors
+
