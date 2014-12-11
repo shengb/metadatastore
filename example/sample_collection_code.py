@@ -15,7 +15,7 @@ s_id2 = random.randint(0, 10000)
 """
 # create(header=[{'scan_id': s_id, 'tags': ['CSX_collection', 'arman']}, {'scan_id': s_id2}]) #Bulk Header create
 
-header={'scan_id': s_id, 'tags': ['CSX_collection', 'arman']}
+header= {'scan_id': s_id, 'tags': ['CSX_collection', 'arman']}
 
 create_header(**header)
 
@@ -65,7 +65,8 @@ print query_a['header_0'].keys()
 #TODO: Fix collection api search
 print query_a['header_0']['event_descriptors']['event_descriptor_0']['events']
 print query_a['header_0']['event_descriptors']['event_descriptor_1']['events']
-data = {'some_motor_1': 16.4, 'image1': '/home/arkilic/sample.tiff'}
+
+data = {'motor4': 23.4, 'image1': '/home/arkilic/sample2.tiff'}
 event = {'scan_id': s_id, 'descriptor_name': 'ascan', 'owner': 'arkilic',
          'seq_no': 0, 'data': data, 'description': 'Linear scan'}
 create_event(event)

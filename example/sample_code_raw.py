@@ -54,4 +54,4 @@ sample_result = find(owner='arkilic', data=True)
 
 
 
-pprint(find_last()[0])
+pprint(find_last())
