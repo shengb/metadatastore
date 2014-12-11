@@ -46,8 +46,7 @@ create_event_descriptor(**ev_desc2)
 
 events = [{'scan_id': s_id, 'descriptor_name': 'scan', 'seq_no': 0},
           {'scan_id': s_id, 'descriptor_name': 'ascan', 'owner': 'arkilic',
-           'seq_no': 0, 'data': data, 'description': 'Linear scan'}
-]
+           'seq_no': 0, 'data': data, 'description': 'Linear scan'}]
 
 create_event(events)
 
