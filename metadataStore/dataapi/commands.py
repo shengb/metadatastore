@@ -502,15 +502,6 @@ def find(header_id=None, scan_id=None, owner=None, start_time=None, beamline_id=
     return header
 
 
-def __inverse_dot(data_key):
-    key = None
-    if '[dot]' in data_key:
-        key = data_key.replace('[dot]', '.')
-    else:
-        key = data_key
-    return key
-
-
 def __decode_hdr_cursor(cursor_object):
     headers = dict()
     i = 0
@@ -830,7 +821,12 @@ def find_last():
     event_descriptors = __decode_e_d_cursor_last(event_desc_cursor)
     for event_descriptor in event_descriptors:
         ev_cursor = find_event(descriptor_id=event_descriptor['_id'])
-        events.extend(__decode_cursor_event_last(ev_cursor))
+        for entry in ev_cursor:
+            raw_data_keys = entry['data'].keys()
+            for raw_key in raw_data_keys:
+                if '[dot]' in raw_key:
+                    entry['data'][__inverse_dot(raw_key)] = entry['data'].pop(raw_key)
+            events.append(entry)
     return header, event_descriptors, events, beamline_configs
 
 
@@ -846,10 +842,9 @@ def __decode_cursor_event_last(cursor_object):
     for temp_dict in cursor_object:
         tmp_data_keys = temp_dict['data'].keys()
         for raw_key in tmp_data_keys:
-            content = temp_dict['data'][raw_key]
-            new_data_dict[__inverse_dot(raw_key)] = content
-        temp_dict['data'] = new_data_dict
-        events.append(temp_dict)
+            raw_key_content = temp_dict['data'][raw_key]
+            new_data_dict[__inverse_dot(raw_key)] = raw_key_content
+        events.append(new_data_dict)
     return events
 
 
@@ -873,3 +868,7 @@ def __decode_e_d_cursor_last(cursor_object):
         event_descriptors.append(temp_dict)
     return event_descriptors
 
+
+def __inverse_dot(data_key):
+    key = data_key.replace('[dot]', '.')
+    return key
