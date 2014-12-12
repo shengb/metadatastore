@@ -398,6 +398,7 @@ def find(header_id=None, scan_id=None, owner=None, start_time=None, beamline_id=
         metadataLogger.logger.warning('Collection Header cannot be accessed')
         raise
     if scan_id is 'current':
+        raise NotImplementedError('Current is obsolete. Please use scan_id=last or find_last() instead')
         header_cursor = coll.find().sort([('end_time', -1)]).limit(1)
         header = header_cursor[0]
         event_desc = find_event_descriptor(header['_id'])
@@ -536,18 +537,15 @@ def __decode_cursor(cursor_object):
     :param cursor_object: event cursor
     :return:
     """
-    events = dict()
-    new_data_dict = dict()
-    i = 0
-    for temp_dict in cursor_object:
-        tmp_data_keys = temp_dict['data'].keys()
-        for raw_key in tmp_data_keys:
-            content = temp_dict['data'][raw_key]
-            new_data_dict[__inverse_dot(raw_key)] = content
-        temp_dict['data'] = new_data_dict
-        events['event_' + str(i)] = temp_dict
-        i += 1
-    return events
+    event_dict = dict()
+    k = 0
+    for ev in cursor_object:
+        raw_data_keys = ev['data'].keys()
+        for raw_key in raw_data_keys:
+            if '[dot]' in raw_key:
+                ev['data'][__inverse_dot(raw_key)] = ev['data'].pop(raw_key)
+        k += 1
+    return event_dict
 
 
 def __get_event_keys(event_descriptor):
@@ -594,6 +592,7 @@ def convertToHumanReadable(date_time):
     :return: fancy datetime
     :rtype: str
     """
+    raise NotImplementedError('Time format has changed. This function has to be modified to fit time()')
     current_datetime = datetime.datetime.now()
     delta = str(current_datetime - date_time)
     if delta.find(',') > 0:
