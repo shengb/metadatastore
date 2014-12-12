@@ -478,6 +478,10 @@ def find(header_id=None, scan_id=None, owner=None, start_time=None, beamline_id=
                     k=0
                     header[key]['event_descriptors']['event_descriptor_' + str(i)]['events'] = dict()
                     for ev in event_cursor:
+                        raw_data_keys = ev['data'].keys()
+                        for raw_key in raw_data_keys:
+                            if '[dot]' in raw_key:
+                                ev['data'][__inverse_dot(raw_key)] = ev['data'].pop(raw_key)
                         header[key]['event_descriptors']['event_descriptor_' + str(i)]['events']['event_' + str(k)] = ev
                         k += 1
 
