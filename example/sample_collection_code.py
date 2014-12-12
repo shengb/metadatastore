@@ -6,7 +6,7 @@ from pprint import pprint
 from metadataStore.api.collection import (create_event,
                                           create_header,
                                           create_event_descriptor,
-                                          find_last, find)
+                                          find_last, find, find2)
 from metadataStore.api.collection import search_and_compose as search
 import numpy as np
 
@@ -58,3 +58,7 @@ pprint("Header from find(scan_id=last)")
 pprint(find(scan_id='last', data=True))
 pprint("Header from find(scan_id=s_id)")
 pprint(find(scan_id=s_id, data=True))
+
+pprint("Header from find2(scan_id=s_id)")
+
+pprint(find2(scan_id=s_id, data=True))

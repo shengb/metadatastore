@@ -6,4 +6,4 @@ from ..dataapi.commands import save_header as create_header
 from ..dataapi.commands import (save_beamline_config as create_beamline_config)
 from ..dataapi.commands import (insert_event_descriptor as create_event_descriptor)
 from ..collectionapi.commands import create_event
-from ..dataapi.commands import find_last, find
+from ..dataapi.commands import find_last, find, find2

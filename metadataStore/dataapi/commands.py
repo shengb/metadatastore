@@ -434,25 +434,25 @@ def find(header_id=None, scan_id=None, owner=None, start_time=None, beamline_id=
         if start_time is not None:
                 if isinstance(start_time, list):
                     for time_entry in start_time:
-                        __validate_time([time_entry])
-                    query_dict['start_time'] = {'$in': start_time}
+                        # __validate_time([time_entry])
+                        query_dict['start_time'] = {'$in': start_time}
                 elif isinstance(start_time, dict):
-                    __validate_time([start_time['start'], start_time['end']])
+                    # __validate_time([start_time['start'], start_time['end']])
                     query_dict['start_time'] = {'$gte': start_time['start'], '$lt': start_time['end']}
                 else:
-                    if __validate_time([start_time]):
-                        query_dict['start_time'] = {'$gte': start_time,
-                                                    '$lt': datetime.datetime.utcnow()}
+                    # if __validate_time([start_time]):
+                    query_dict['start_time'] = {'$gte': start_time,
+                                                '$lt': time.time()}
         if end_time is not None:
                 if isinstance(end_time, list):
                     for time_entry in end_time:
-                        __validate_time([time_entry])
-                    query_dict['end_time'] = {'$in': end_time}
+                        # __validate_time([time_entry])
+                        query_dict['end_time'] = {'$in': end_time}
                 elif isinstance(end_time, dict):
                     query_dict['end_time'] = {'$gte': end_time['start'], '$lt': end_time['end']}
                 else:
                     query_dict['end_time'] = {'$gte': end_time,
-                                              '$lt': datetime.datetime.utcnow()}
+                                              '$lt': time.time()}
         if tags is not None:
             query_dict['tags'] = {'$in': [tags]}
         header = __decode_hdr_cursor(find_header(query_dict).limit(num_header))
@@ -693,25 +693,20 @@ def find2(header_id=None, scan_id=None, owner=None, start_time=None, beamline_id
         if start_time is not None:
                 if isinstance(start_time, list):
                     for time_entry in start_time:
-                        __validate_time([time_entry])
-                    query_dict['start_time'] = {'$in': start_time}
+                        query_dict['start_time'] = {'$in': start_time}
                 elif isinstance(start_time, dict):
-                    __validate_time([start_time['start'], start_time['end']])
                     query_dict['start_time'] = {'$gte': start_time['start'], '$lt': start_time['end']}
                 else:
-                    if __validate_time([start_time]):
-                        query_dict['start_time'] = {'$gte': start_time,
-                                                    '$lt': datetime.datetime.utcnow()}
+                    query_dict['start_time'] = {'$gte': start_time,
+                                                '$lt': time.time()}
         if end_time is not None:
                 if isinstance(end_time, list):
-                    for time_entry in end_time:
-                        __validate_time([time_entry])
                     query_dict['end_time'] = {'$in': end_time}
                 elif isinstance(end_time, dict):
                     query_dict['end_time'] = {'$gte': end_time['start'], '$lt': end_time['end']}
                 else:
                     query_dict['end_time'] = {'$gte': end_time,
-                                              '$lt': datetime.datetime.utcnow()}
+                                              '$lt': time.time()}
         if tags is not None:
             query_dict['tags'] = {'$in': [tags]}
         headers = __decode_hdr_cursor2(find_header(query_dict).limit(num_header))
