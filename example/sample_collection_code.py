@@ -53,4 +53,8 @@ pprint("Events")
 pprint(find_last()[2][0])
 pprint(find_last()[2][1])
 
+
+pprint("Header from find(scan_id=last)")
 pprint(find(scan_id='last'))
+pprint("Header from find(scan_id=s_id)")
+pprint(find(scan_id=s_id))
