@@ -2,10 +2,11 @@ __author__ = ['arkilic','edill']
 import six
 import random
 import time
+from pprint import pprint
 from metadataStore.api.collection import (create_event,
                                           create_header,
                                           create_event_descriptor,
-                                          find_last)
+                                          find_last, find)
 from metadataStore.api.collection import search_and_compose as search
 import numpy as np
 
@@ -41,7 +42,7 @@ for idx, x in enumerate(x_range):
 # find_last()
 # print('scan_id: {}'.format(s_id))
 #
-from pprint import pprint
+
 pprint("Header")
 pprint(find_last()[0])
 pprint('==============')
@@ -51,3 +52,5 @@ pprint('==============')
 pprint("Events")
 pprint(find_last()[2][0])
 pprint(find_last()[2][1])
+
+pprint(find(scan_id='last'))

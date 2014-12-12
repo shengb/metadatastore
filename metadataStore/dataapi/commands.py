@@ -675,26 +675,11 @@ def find2(header_id=None, scan_id=None, owner=None, start_time=None, beamline_id
             else:
                 i += 1
     elif scan_id is 'last':
-        header_cursor = coll.find().sort([('end_time', -1)]).limit(5)
-        header = header_cursor[1]
-        event_desc = find_event_descriptor(header['_id'])
-        i = 0
-        for e_d in event_desc:
-            tmp_data_keys = e_d['data_keys']
-            new_data_keys = list()
-            for raw_key in tmp_data_keys:
-                if '[dot]' in raw_key:
-                    new_data_keys.append(raw_key.replace('[dot]', '.'))
-                else:
-                    new_data_keys.append(raw_key)
-            e_d['data_keys'] = new_data_keys
-            header['event_descriptor_' + str(i)] = e_d
-            events = find_event(descriptor_id=e_d['_id'])
-            if data is True:
-                header['event_descriptor_' + str(i)]['events'] = __decode_cursor(events)
-                i += 1
-            else:
-                i += 1
+        result = find_last()
+        return {'headers': result[0], 'beamline_configs': result[3],
+                'event_descriptors': result[1],
+                'events': result[2]}
+
     else:
         if header_id is not None:
             query_dict['_id'] = ObjectId(header_id)
