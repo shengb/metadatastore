@@ -648,7 +648,6 @@ def find2(header_id=None, scan_id=None, owner=None, start_time=None, beamline_id
      >>> find(event_time={'start': datetime.datetime(2014, 6, 13, 17, 51, 21, 987000})
     """
 
-    #TODO: Add dot to . replacement to find2. Use find() as a reference.
 
     query_dict = dict()
     try:
@@ -657,6 +656,7 @@ def find2(header_id=None, scan_id=None, owner=None, start_time=None, beamline_id
         metadataLogger.logger.warning('Collection Header cannot be accessed')
         raise
     if scan_id is 'current':
+        raise NotImplementedError('Current is obsolete. Please use scan_id=last or find_last() instead')
         header_cursor = coll.find().sort([('end_time', -1)]).limit(1)
         header = header_cursor[0]
         event_desc = find_event_descriptor(header['_id'])
