@@ -1,75 +1,53 @@
-__author__ = 'arkilic'
+__author__ = ['arkilic','edill']
 import six
 import random
 import time
 from metadataStore.api.collection import (create_event,
                                           create_header,
-                                          create_event_descriptor)
+                                          create_event_descriptor,
+                                          find_last)
 from metadataStore.api.collection import search_and_compose as search
+import numpy as np
 
 s_id = random.randint(0, 10000)
-s_id2 = random.randint(0, 10000)
-"""
->>> create(header={'scan_id': s_id})
->>> create(beamline_config={'scan_id': s_id})
-"""
-# create(header=[{'scan_id': s_id, 'tags': ['CSX_collection', 'arman']}, {'scan_id': s_id2}]) #Bulk Header create
 
-header= {'scan_id': s_id, 'tags': ['CSX_collection', 'arman']}
+header={'scan_id': s_id, 'tags': ['synthetic', 'edill']}
 
 create_header(**header)
 
-#TODO: Bulk header create does not create using the default!!!!
+data = {'motor': 0, 'img_sum': 0, 'time': time.time()}
 
-data = {'motor4': 13.4, 'image1': '/home/arkilic/sample.tiff'}
-
+desc_name = 'cosine_scan'
 ev_desc1 = {'scan_id': s_id,
-            'descriptor_name': 'scan',
-            'event_type_id': 12,
-            'tag': 'experimental',
-            'data_keys': list(six.iterkeys(data))
-}
-ev_desc2 = {'scan_id': s_id,
-            'descriptor_name': 'ascan',
-            'event_type_id': 13,
+            'descriptor_name': desc_name,
+            'event_type_id': 42,
             'tag': 'experimental',
             'data_keys': list(six.iterkeys(data))
 }
 create_event_descriptor(**ev_desc1)
-create_event_descriptor(**ev_desc2)
 
-"""
->>> record(event={'scan_id': s_id, 'descriptor_name': 'scan', 'seq_no': 0})
->>> record(event={'scan_id': s_id, 'descriptor_name': 'scan', 'owner': 'arkilic', 'seq_no': 0,
-              'data': {'motor1': 13.4, 'image1': '/home/arkilic/sample.tiff'},'description': 'Linear scan'})
-"""
-
-events = [{'scan_id': s_id, 'descriptor_name': 'scan', 'seq_no': 0},
-          {'scan_id': s_id, 'descriptor_name': 'ascan', 'owner': 'arkilic',
-           'seq_no': 0, 'data': data, 'description': 'Linear scan'}]
-
-create_event(events)
-
-event={'scan_id': s_id, 'seq_no': 2, 'descriptor_name': 'scan'}
-
-create_event(event)
-# record({'scan_id': s_id, 'descriptor_name': 'ascan', 'owner': 'arkilic', 'seq_no': 0,
-#               'data': {'motor1': 13.4, 'image1': '/home/arkilic/sample.tiff'},'description': 'Linear scan'})
-
-query_a = search(scan_id=s_id, data=True)
-
-print s_id
-#Fix insert
-print query_a['header_0'].keys()
-#TODO: Fix collection api search
-print query_a['header_0']['event_descriptors']['event_descriptor_0']['events']
-print query_a['header_0']['event_descriptors']['event_descriptor_1']['events']
-
-data = {'motor4': 23.4, 'image1': '/home/arkilic/sample2.tiff'}
-event = {'scan_id': s_id, 'descriptor_name': 'ascan', 'owner': 'arkilic',
-         'seq_no': 0, 'data': data, 'description': 'Linear scan'}
-create_event(event)
-
-res = search(owner='arkilic', data=True, event_classifier={'data.some_motor_1': 16.4})
-# for entry in res:
-#     print res[entry]['event_descriptors']['event_descriptor_1']
+x_range = np.arange(0, .03, .01)
+for idx, x in enumerate(x_range):
+    data['motor'] = x
+    data['img_sum'] = np.sin(x)
+    data['time'] = time.time()
+    event = {'scan_id': s_id,
+             'descriptor_name': desc_name,
+             'seq_no': idx,
+             'data': data
+    }
+    create_event(event)
+    time.sleep(0.01)
+# find_last()
+# print('scan_id: {}'.format(s_id))
+#
+from pprint import pprint
+pprint("Header")
+pprint(find_last()[0])
+pprint('==============')
+pprint("Event_descriptor")
+pprint(find_last()[1][0])
+pprint('==============')
+pprint("Events")
+pprint(find_last()[2][0])
+pprint(find_last()[2][1])
