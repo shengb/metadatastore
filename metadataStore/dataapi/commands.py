@@ -411,26 +411,11 @@ def find(header_id=None, scan_id=None, owner=None, start_time=None, beamline_id=
             else:
                 i += 1
     elif scan_id is 'last':
-        header_cursor = coll.find().sort([('end_time', -1)]).limit(1)
-        header = header_cursor[0]
-        event_desc = find_event_descriptor(header['_id'])
-        i = 0
-        for e_d in event_desc:
-            tmp_data_keys = e_d['data_keys']
-            new_data_keys = list()
-            for raw_key in tmp_data_keys:
-                if '[dot]' in raw_key:
-                    new_data_keys.append(raw_key.replace('[dot]', '.'))
-                else:
-                    new_data_keys.append(raw_key)
-            e_d['data_keys'] = new_data_keys
-            header['event_descriptor_' + str(i)] = e_d
-            events = find_event(descriptor_id=e_d['_id'])
-            if data is True:
-                header['event_descriptor_' + str(i)]['events'] = __decode_cursor(events)
-                i += 1
-            else:
-                i += 1
+        result = find_last()
+        header = result[0]
+        header['event_descriptors'] = result[1]
+        header['events'] = result[2]
+        header['beamline_configs'] = result[3]
     else:
         if header_id is not None:
             query_dict['_id'] = ObjectId(header_id)
@@ -489,8 +474,14 @@ def find(header_id=None, scan_id=None, owner=None, start_time=None, beamline_id=
                 e_d['data_keys'] = new_data_keys
                 header[key]['event_descriptors']['event_descriptor_' + str(i)] = e_d
                 if data is True:
-                    events = find_event(descriptor_id=e_d['_id'], event_query_dict=event_classifier)
-                    header[key]['event_descriptors']['event_descriptor_' + str(i)]['events'] = __decode_cursor(events)
+                    event_cursor = find_event(descriptor_id=e_d['_id'], event_query_dict=event_classifier)
+                    k=0
+                    header[key]['event_descriptors']['event_descriptor_' + str(i)]['events'] = dict()
+                    for ev in event_cursor:
+                        header[key]['event_descriptors']['event_descriptor_' + str(i)]['events']['event_' + str(k)] = ev
+                        k += 1
+
+                    # header[key]['event_descriptors']['event_descriptor_' + str(i)]['events'] = __decode_cursor(events)
                     data_keys = __get_event_keys(header[key]['event_descriptors']['event_descriptor_' + str(i)])
                     header[key]['event_descriptors']['event_descriptor_' + str(i)]['data_keys'] = data_keys
                     i += 1

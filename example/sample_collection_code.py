@@ -55,6 +55,6 @@ pprint(find_last()[2][1])
 
 
 pprint("Header from find(scan_id=last)")
-pprint(find(scan_id='last'))
+pprint(find(scan_id='last', data=True))
 pprint("Header from find(scan_id=s_id)")
-pprint(find(scan_id=s_id))
+pprint(find(scan_id=s_id, data=True))
