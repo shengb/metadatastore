@@ -786,7 +786,8 @@ def find_last():
     except:
         metadataLogger.logger.warning('Collection Header cannot be accessed')
         raise
-    header_cursor = coll.find().sort([('end_time', -1)]).limit(1)
+    header_cursor = db.header.find().sort([('_id', -1)]).limit(1)
+    print header_cursor
     header = header_cursor[0]
     beamline_cfg_crsr = find_beamline_config(header_id=header['_id'])
     for bcfg in beamline_cfg_crsr:
