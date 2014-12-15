@@ -27,7 +27,7 @@ ev_desc1 = {'scan_id': s_id,
 }
 create_event_descriptor(**ev_desc1)
 
-x_range = np.arange(0, .03, .01)
+x_range = np.arange(0, 10, .01)
 for idx, x in enumerate(x_range):
     data['motor'] = x
     data['img_sum'] = np.sin(x)
@@ -38,7 +38,8 @@ for idx, x in enumerate(x_range):
              'data': data
     }
     create_event(event)
-    time.sleep(0.01)
+    time.sleep(0.1)
+    print('scan_id: {}. step {} of {}'.format(s_id, idx+1, len(x_range)))
 # find_last()
 # print('scan_id: {}'.format(s_id))
 #
