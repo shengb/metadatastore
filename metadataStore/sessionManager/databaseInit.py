@@ -7,7 +7,7 @@ from metadataStore.config.parseConfig import database, host, port
 from metadataStore.sessionManager.databaseLogger import DbLogger
 
 
-conn = MongoClient(host=host, port=int(port))
+conn = MongoClient(host='xf23id-broker', port=27017)
 db = conn['metaDataStore']
 
 
