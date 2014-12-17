@@ -69,6 +69,13 @@ def save_header(scan_id, owner=None, start_time=None, beamline_id=None,
     args_dict['tags'] = tags
     args_dict['custom'] = custom
 
+    custom_keys = args_dict['custom'].keys()
+
+    valid_types = [str, int, float, dict, list]
+    for c_key in custom_keys:
+        if type(args_dict['custom'][c_key]) not in valid_types:
+            raise TypeError('Invalid data type in custom')
+
     try:
         header = Header(**args_dict).save(wtimeout=100, write_concern={'w': 1})
     except:

@@ -1,8 +1,8 @@
 __author__ = 'arkilic'
 import time
 import random
-from metadataStore.mdstools.commands import save_header, insert_event_descriptor, save_beamline_config, insert_event
-from metadataStore.mdstools.commands import find, find_last
+from ..mdstools.commands import save_header, insert_event_descriptor, save_beamline_config, insert_event
+from ..mdstools.commands import find, find_last
 from pprint import pprint
 
 h_id = random.randint(0, 200000)
