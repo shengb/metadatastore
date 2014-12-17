@@ -10,6 +10,7 @@ from metadataStore.database.utility import (
 from metadataStore.sessionManager.databaseInit import db
 from pymongo.errors import DuplicateKeyError
 
+
 class Header(object):
     """
     Run Header that captures all aspects of a given run using its keys and other collections

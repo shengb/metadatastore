@@ -847,3 +847,5 @@ def __decode_e_d_cursor_last(cursor_object):
 def __inverse_dot(data_key):
     key = data_key.replace('[dot]', '.')
     return key
+
+

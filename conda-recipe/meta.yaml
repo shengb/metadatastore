@@ -24,7 +24,7 @@ test:
     - metadataStore.utilities
     - metadataStore.collectionapi
     - metadataStore.config
-    - metadataStore.dataapi
+    - metadataStore.mdstools
     - metadataStore.database
     - metadataStore.sessionManager
     - metadataStore.userapi

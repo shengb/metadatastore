@@ -21,7 +21,7 @@ import os
 sys.path.insert(0, os.path.abspath('../../'))
 # sys.path.insert(0, os.path.abspath('../../metadataStore/'))
 # sys.path.insert(0, os.path.abspath('../../metadataStore/database/'))
-# sys.path.insert(0, os.path.abspath('../../metadataStore/dataapi/'))
+# sys.path.insert(0, os.path.abspath('../../metadataStore/mdstools/'))
 # sys.path.insert(0, os.path.abspath('../../metadataStore/collectionapi/'))
 
 #sys.path.insert(0, os.path.abspath('../../metadataStore'))
