@@ -3,7 +3,6 @@ __author__ = 'arkilic'
 
 import sys
 import six
-import getpass
 from metadataStore.database.utility import (
     validate_dict, validate_string, validate_time, validate_int, validate_list
 )
