@@ -13,12 +13,11 @@ except ImportError:
         from distutils.core import setup
 
 from distutils.core import setup, Extension
-import numpy as np
 import os
 
 MAJOR = 0
 MINOR = 0
-MICRO = 2
+MICRO = 3
 ISRELEASED = False
 SNAPSHOT = False
 VERSION = '%d.%d.%d' % (MAJOR, MINOR, MICRO)
@@ -72,7 +71,7 @@ setup(
     author='Arkilic',
     author_email=None,
     license="BSD (3-clause)",
-    url = "https://github.com/arkilic/metadataStore",
+    url = "https://github.com/NSLS-II/metadataStore",
     packages=['metadataStore', 'metadataStore.utilities',
               'metadataStore.config', 'metadataStore.mdstools',
               'metadataStore.database', 'metadataStore.sessionManager',
