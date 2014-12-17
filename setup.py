@@ -16,8 +16,8 @@ from distutils.core import setup, Extension
 import os
 
 MAJOR = 0
-MINOR = 0
-MICRO = 3
+MINOR = 1 
+MICRO = 0
 ISRELEASED = False
 SNAPSHOT = False
 VERSION = '%d.%d.%d' % (MAJOR, MINOR, MICRO)

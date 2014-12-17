@@ -15,16 +15,17 @@ def check_config_file():
         result = True
     return result
 
+
 def __loadConfig():
     cf=ConfigParser.SafeConfigParser()
     if check_config_file():
         cf.read([
-            '/etc/dataBroker.conf',
-            os.path.expanduser('~/dataBroker.conf'),
-            'dataBroker.conf'
+            # '/etc/dataBroker.conf',
+            os.path.expanduser('~/dataBroker.conf')
+            # 'dataBroker.conf'
         ])
     else:
-        raise IOError('Configuration file does not exist')
+        raise IOError('Configuration file does not exist. Add dataBroker.conf to your home directory')
     return cf
 
 
