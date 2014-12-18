@@ -13,14 +13,18 @@ from metadataStore.sessionManager import databaseInit
 from pymongo import MongoClient
 from metadataStore.config.parseConfig import port, database
 from metadataStore.sessionManager.databaseLogger import DbLogger
+from metadataStore.api.analysis import find
 
 s_id = random.randint(0, 10000)
 
+nested_list = [pprint, [pprint, [pprint, [pprint, pprint]]]]
+nested_dict = list(six.itervalues(find(find_last()[0]['_id'])))[0]
+# nested_dict = {}
 header={'scan_id': s_id,
         'tags': ['synthetic', 'edill'],
         'custom': {
-            'dict': {'a': 1},
-            'list': ['a', 'b', 1, pprint],
+            'dict': {'a': 1, 'nested': nested_dict},
+            'list': ['a', 'b', 1, nested_list],
             'string': 'cat',
             'float': 3.1415,
             'int': 42,

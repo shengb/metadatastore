@@ -14,8 +14,13 @@ valid_types = (str, int, float, dict, list)
 
 
 def validate(val):
-    if not isinstance(val, valid_types):
-        val = str(val)
+    if isinstance(val, dict):
+        val = {validate(k): validate(v) for k, v in six.iteritems(val)}
+    elif isinstance(val, list):
+        val = [validate(item) for item in val]
+    else:
+        if not isinstance(val, valid_types):
+            val = str(val)
 
     return val
 
@@ -79,16 +84,18 @@ def save_header(scan_id, owner=None, start_time=None, beamline_id=None,
     args_dict['tags'] = tags
 
     # validate the keys and values at the top level of args_dict
+
     custom = {validate(k): validate(v) for k, v in six.iteritems(custom)}
-    # validate the values in args_dict['custom'] if
-    for k1, v1 in six.iteritems(custom):
-        # check to see if the value is a dict
-        if isinstance(v1, dict):
-            # validate second level keys and values in the dictionary
-            custom[k1] = {validate(k): validate(v) for k, v in six.iteritems(v1)}
-        # check to see if the value is iterable
-        elif hasattr(v1, '__iter__'):
-            custom[k1] = [validate(item) for item in v1]
+
+    # # validate the values in args_dict['custom'] if
+    # for k1, v1 in six.iteritems(custom):
+    #     # check to see if the value is a dict
+    #     if isinstance(v1, dict):
+    #         # validate second level keys and values in the dictionary
+    #         custom[k1] = {validate(k): validate(v) for k, v in six.iteritems(v1)}
+    #     # check to see if the value is iterable
+    #     elif hasattr(v1, '__iter__'):
+    #         custom[k1] = [validate(item) for item in v1]
 
     args_dict['custom'] = custom
 
