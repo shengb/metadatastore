@@ -14,20 +14,13 @@ from pymongo import MongoClient
 from metadataStore.config.parseConfig import port, database
 from metadataStore.sessionManager.databaseLogger import DbLogger
 
-
-conn = databaseInit.conn = MongoClient(host='localhost', port=int(port))
-db = conn['metaDataStore']
-
-metadataLogger = DbLogger(db_name=database, host='localhost', port=int(port))
-
-
 s_id = random.randint(0, 10000)
 
 header={'scan_id': s_id,
         'tags': ['synthetic', 'edill'],
         'custom': {
             'dict': {'a': 1},
-            'list': ['a', 'b', 1], #, pprint],
+            'list': ['a', 'b', 1, pprint],
             'string': 'cat',
             'float': 3.1415,
             'int': 42,
