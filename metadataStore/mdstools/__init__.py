@@ -10,7 +10,7 @@ from bson.objectid import ObjectId
 from .. import header_version as CURRENT_HEADER_VERSION
 import six
 
-valid_types = (str, int, float, dict, list)
+valid_types = (str, int, float, dict, list, tuple)
 
 
 def validate(val):

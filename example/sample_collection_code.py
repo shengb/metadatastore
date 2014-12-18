@@ -28,6 +28,7 @@ header={'scan_id': s_id,
             'string': 'cat',
             'float': 3.1415,
             'int': 42,
+            'tuple': (1, 2, 3),
             # non-standard keys that create_header should bash to a string
             'np': np,
             'time': time,
