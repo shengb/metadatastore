@@ -8,7 +8,7 @@ from metadataStore.database.collections import Header, BeamlineConfig, Event, Ev
 from metadataStore.sessionManager.databaseInit import metadataLogger
 from bson.objectid import ObjectId
 from .. import header_version as CURRENT_HEADER_VERSION
-
+import six
 
 def save_header(scan_id, owner=None, start_time=None, beamline_id=None,
                 header_version=None, status=None, tags=None, custom=None):
@@ -69,12 +69,12 @@ def save_header(scan_id, owner=None, start_time=None, beamline_id=None,
     args_dict['tags'] = tags
     args_dict['custom'] = custom
 
-    custom_keys = args_dict['custom'].keys()
-
-    valid_types = [str, int, float, dict, list]
-    for c_key in custom_keys:
-        if type(args_dict['custom'][c_key]) not in valid_types:
-            raise TypeError('Invalid data type in custom')
+    valid_types = (str, int, float, dict, list)
+    for k, v in six.iteritems(args_dict['custom']):
+        # check the values of the top level
+        if not isinstance(v, valid_types):
+            args_dict['custom'][k] = str(v)
+        # todo check the values at the top level of the dict or list
 
     try:
         header = Header(**args_dict).save(wtimeout=100, write_concern={'w': 1})

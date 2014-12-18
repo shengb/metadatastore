@@ -12,7 +12,19 @@ import numpy as np
 
 s_id = random.randint(0, 10000)
 
-header={'scan_id': s_id, 'tags': ['synthetic', 'edill']}
+header={'scan_id': s_id,
+        'tags': ['synthetic', 'edill'],
+        'custom': {
+            'dict': {'a': 1},
+            'list': ['a', 'b', 1, pprint],
+            'string': 'cat',
+            'float': 3.1415,
+            'int': 42,
+            # non-standard keys that create_header should bash to a string
+            'np': np,
+            'time': time,
+            'tuple': (1, 2, 3, 4),
+        }}
 
 create_header(**header)
 
