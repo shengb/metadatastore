@@ -890,7 +890,7 @@ def validate_dict_keys(input_dict, req_set):
         raise ValueError("The required key(s) {} are missing".format(missing))
 
 
-def create_event(event):
+def create_event(event, debug=False):
     """
     Events are saved given scan_id and descriptor name and additional
     optional parameters.
@@ -949,7 +949,8 @@ def create_event(event):
         ret = insert_event(scan_id, descriptor_name, seq_no,
                      description=description,
                      owner=owner, data=data)
-        print("the returned thing is {}".format(ret))
+        if debug:
+            print("the returned thing is {}".format(ret))
 
     elif isinstance(event, list):
         errors = []
