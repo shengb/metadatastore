@@ -9,10 +9,31 @@ from metadataStore.api.collection import (create_event,
                                           find_last, find, find2)
 from metadataStore.api.collection import search_and_compose as search
 import numpy as np
+from metadataStore.sessionManager import databaseInit
+from pymongo import MongoClient
+from metadataStore.config.parseConfig import port, database
+from metadataStore.sessionManager.databaseLogger import DbLogger
+from metadataStore.api.analysis import find
 
 s_id = random.randint(0, 10000)
 
-header={'scan_id': s_id, 'tags': ['synthetic', 'edill']}
+nested_list = [pprint, [pprint, [pprint, [pprint, pprint]]]]
+nested_dict = list(six.itervalues(find(find_last()[0]['_id'])))[0]
+# nested_dict = {}
+header={'scan_id': s_id,
+        'tags': ['synthetic', 'edill'],
+        'custom': {
+            'dict': {'a': 1, 'nested': nested_dict},
+            'list': ['a', 'b', 1, nested_list],
+            'string': 'cat',
+            'float': 3.1415,
+            'int': 42,
+            'tuple': (1, 2, 3),
+            # non-standard keys that create_header should bash to a string
+            'np': np,
+            'time': time,
+            'tuple': (1, 2, 3, 4),
+        }}
 
 create_header(**header)
 
@@ -27,7 +48,7 @@ ev_desc1 = {'scan_id': s_id,
 }
 create_event_descriptor(**ev_desc1)
 
-x_range = np.arange(0, 10, .01)
+x_range = np.arange(0, .02, .01)
 for idx, x in enumerate(x_range):
     data['motor'] = x
     data['img_sum'] = np.sin(x)

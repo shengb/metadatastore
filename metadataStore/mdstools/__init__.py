@@ -8,6 +8,20 @@ from metadataStore.database.collections import Header, BeamlineConfig, Event, Ev
 from metadataStore.sessionManager.databaseInit import metadataLogger
 from bson.objectid import ObjectId
 from .. import header_version as CURRENT_HEADER_VERSION
+import six
+
+valid_types = (str, int, float, dict, list, tuple)
+
+
+def validate(val):
+    if isinstance(val, dict):
+        val = {validate(k): validate(v) for k, v in six.iteritems(val)}
+    elif isinstance(val, list):
+        val = [validate(item) for item in val]
+    else:
+        if not isinstance(val, valid_types):
+            val = str(val)
+    return val
 
 
 def save_header(scan_id, owner=None, start_time=None, beamline_id=None,
@@ -69,12 +83,8 @@ def save_header(scan_id, owner=None, start_time=None, beamline_id=None,
     args_dict['tags'] = tags
     args_dict['custom'] = custom
 
-    custom_keys = args_dict['custom'].keys()
-
-    valid_types = [str, int, float, dict, list]
-    for c_key in custom_keys:
-        if type(args_dict['custom'][c_key]) not in valid_types:
-            raise TypeError('Invalid data type in custom')
+    # recursively validate all values in the header
+    args_dict = validate(args_dict)
 
     try:
         header = Header(**args_dict).save(wtimeout=100, write_concern={'w': 1})
@@ -880,7 +890,7 @@ def validate_dict_keys(input_dict, req_set):
         raise ValueError("The required key(s) {} are missing".format(missing))
 
 
-def create_event(event):
+def create_event(event, debug=False):
     """
     Events are saved given scan_id and descriptor name and additional
     optional parameters.
@@ -939,7 +949,8 @@ def create_event(event):
         ret = insert_event(scan_id, descriptor_name, seq_no,
                      description=description,
                      owner=owner, data=data)
-        print("the returned thing is {}".format(ret))
+        if debug:
+            print("the returned thing is {}".format(ret))
 
     elif isinstance(event, list):
         errors = []
