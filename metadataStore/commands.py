@@ -8,7 +8,7 @@ import datetime
 from metadataStore.conf import host, port, database
 from mongoengine import connect
 import time
-#TODO: Add logger
+# TODO: Add logger
 
 
 def save_header(scan_id, start_time, end_time, **kwargs):
@@ -17,29 +17,32 @@ def save_header(scan_id, start_time, end_time, **kwargs):
     Parameters
     ----------
     scan_id : int
-    Unique scan identifier visible to the user and data analysis
+        Unique scan identifier visible to the user and data analysis
 
-    start_time: time
-    Start time of series of events that are recorded by the header
+    start_time : time
+        Start time of series of events that are recorded by the header
 
-    end_time: time
-    End time of series of events that are recorded by the header
+    end_time : time
+        End time of series of events that are recorded by the header
 
 
-    kwargs
-    -----------
+    Other Parameters
+    ----------------
 
-    owner: str
-    Specifies the unix user credentials of the user creating the entry
+    owner : str
+        Specifies the unix user credentials of the user creating the entry
 
-    beamline_id: str
-    Beamline String identifier. Not unique, just an indicator of beamline code for multiple beamline systems
 
-    status: str
-    Provides an information regarding header. Choice: In Progress/Complete
+    beamline_id : str
+        Beamline String identifier. Not unique, just an indicator of beamline
+        code for multiple beamline systems
 
-    custom: dict
-    Additional parameters that data acquisition code/user wants to append to a given header. Name/value pairs
+    status : str
+        Provides an information regarding header. Choice: In Progress/Complete
+
+    custom : dict
+        Additional parameters that data acquisition code/user wants to append
+        to a given header. Name/value pairs
 
     """
 
@@ -73,54 +76,65 @@ def save_beamline_config(header, config_params=None):
 
     Parameters
     ----------
-    header: mongoengine.Document
-    Header object that specific beamline_config entry is going to point(foreign key)
+    header : mongoengine.Document
+        Header object that specific beamline_config entry is
+        going to point(foreign key)
 
-    config_params: dict
-    Name/value pairs that indicate beamline configuration parameters during capturing of
+    config_params : dict
+        Name/value pairs that indicate beamline configuration parameters
+        during capturing of
 
     """
 
     connect(db=database, host=host, port=port)
 
-    beamline_config = BeamlineConfig(header=header.id, config_params=config_params)
+    beamline_config = BeamlineConfig(header=header.id,
+                                     config_params=config_params)
     beamline_config.save(validate=True, write_concern={"w": 1})
 
     return beamline_config
 
 
-def save_event_descriptor(header, event_type_id, descriptor_name, data_keys, **kwargs):
+def save_event_descriptor(header, event_type_id, descriptor_name,
+                          data_keys, **kwargs):
     """ Create an event_descriptor in metadataStore database backend
 
     Parameters
     ----------
 
-    header: mongoengine.Document
-    Header object that specific beamline_config entry is going to point(foreign key)
+    header : mongoengine.Document
+        Header object that specific beamline_config entry is going to
+        point(foreign key)
 
-    event_type_id:int
-    Integer identifier for a scan, sweep, etc.
+    event_type_id : int
+        Integer identifier for a scan, sweep, etc.
 
-    data_keys: list
-    Provides information about keys of the data dictionary in an event will contain
+    data_keys : list
+        Provides information about keys of the data dictionary in an event
+        will contain
 
-    descriptor_name: str
-    Unique identifier string for an event. e.g. ascan, dscan, hscan, home, sweep,etc.
+    descriptor_name : str
+        Unique identifier string for an event. e.g. ascan, dscan, hscan,
+        home, sweep,etc.
 
-    kwargs
-    ----------
-    type_descriptor:dict
-    Additional name/value pairs can be added to an event_descriptor using this flexible field
+    Other Parameters
+    ----------------
+    type_descriptor : dict
+        Additional name/value pairs can be added to an event_descriptor
+        using this flexible field
 
     """
     connect(db=database, host=host, port=port)
 
-    event_descriptor = EventDescriptor(header=header.id, event_type_id=event_type_id, data_keys=data_keys,
+    event_descriptor = EventDescriptor(header=header.id,
+                                       event_type_id=event_type_id,
+                                       data_keys=data_keys,
                                        descriptor_name=descriptor_name)
 
     event_descriptor.type_descriptor = kwargs.pop('type_descriptor', None)
 
-    event_descriptor = __replace_descriptor_data_key_dots(event_descriptor, direction='in')
+    event_descriptor = __replace_descriptor_data_key_dots(event_descriptor,
+                                                          direction='in')
 
     if kwargs:
         raise KeyError('Invalid argument(s)..: ', kwargs.keys())
@@ -130,37 +144,42 @@ def save_event_descriptor(header, event_type_id, descriptor_name, data_keys, **k
     return event_descriptor
 
 
-def save_event(header, event_descriptor, seq_no, timestamp=None, data=None, **kwargs):
+def save_event(header, event_descriptor, seq_no,
+               timestamp=None, data=None, **kwargs):
     """Create an event in metadataStore database backend
 
     Parameters
     ----------
 
-    header: mongoengine.Document
-    Header object that specific event entry is going to point(foreign key)
+    header : mongoengine.Document
+        Header object that specific event entry is going to point(foreign key)
 
-    event_descriptor: mongoengine.Document
-    EventDescriptor object that specific event entry is going to point(foreign key)
+    event_descriptor : mongoengine.Document
+        EventDescriptor object that specific event entry is going to
+        point(foreign key)
 
-    seq_no:int
-    Unique sequence number for the event. Provides order of an event in the group of events
+    seq_no : int
+        Unique sequence number for the event. Provides order of an event in
+        the group of events
 
-    data:dict
-    Dictionary that contains the name value fields for the data associated with an event
+    data : dict
+        Dictionary that contains the name value fields for the data associated
+        with an event
 
-    kwargs
-    ----------
+    Other Parameters
+    ----------------
 
-    owner: str
-    Specifies the unix user credentials of the user creating the entry
+    owner : str
+        Specifies the unix user credentials of the user creating the entry
 
-    description: str
-    Text description of specific event
+    description : str
+        Text description of specific event
 
     """
     connect(db=database, host=host, port=port)
 
-    event = Event(header=header.id, descriptor_id=event_descriptor.id, seq_no=seq_no, timestamp=timestamp,
+    event = Event(header=header.id, descriptor_id=event_descriptor.id,
+                  seq_no=seq_no, timestamp=timestamp,
                   data=data)
 
     event.owner = kwargs.pop('owner', None)
@@ -290,8 +309,8 @@ def find_event_given_descriptor(event_descriptor):
     Parameters
     ----------
 
-    event_descriptor: metadataStore.database.EventDescriptor
-    EventDescriptor instance
+    event_descriptor : metadataStore.database.EventDescriptor
+        EventDescriptor instance
 
     """
     connect(db=database, host=host, port=port)
@@ -312,19 +331,19 @@ def find(data=True, limit=50, **kwargs):
     Parameters
     ---------
 
-    scan_id: int
+    scan_id : int
 
-    owner: str
+    owner : str
 
-    beamline_id: str
+    beamline_id : str
 
-    status: str
+    status : str
 
-    start_time: dict
-    start_time={'start': float, 'end': float}
+    start_time : dict
+        start_time={'start': float, 'end': float}
 
-    end_time: dict
-    end_time={'start': float, 'end': float}
+    end_time : dict
+        end_time={'start': float, 'end': float}
 
     """
     header_objects = find_header(limit, **kwargs)
@@ -374,7 +393,7 @@ def __replace_descriptor_data_key_dots(event_descriptor, direction='in'):
     I know the name is long. Bite me, it is private routine and I have an IDE
 
     Parameters
-    ---------
+    ----------
 
     event_descriptor: metadataStore.database.event_descriptor.EventDescriptor
     EvenDescriptor instance
@@ -403,12 +422,13 @@ def __replace_descriptor_data_key_dots(event_descriptor, direction='in'):
         raise ValueError('Only in/out allowed as direction params')
     return event_descriptor
 
+
 def __replace_event_data_key_dots(event, direction='in'):
     """Replace the '.' with [dot]
     I know the name is long. Bite me, it is private routine and I have an IDE
 
     Parameters
-    ---------
+    ----------
 
     event_descriptor: metadataStore.database.event_descriptor.EventDescriptor
     EvenDescriptor instance
