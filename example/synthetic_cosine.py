@@ -20,9 +20,11 @@ data_keys = {'linear_motor': {'source': 'PV:pv1',
                       'dtype': 'number',
                       'shape': None}
              }
+insert_run_start(time=124135.67, scan_id=0, beamline_id='arman', beamline_config=b_config)
 
 try:
     last_hdr = next(find_last())
+    print(last_hdr)
     scan_id = int(last_hdr.scan_id)+1
 except (IndexError, TypeError):
     scan_id = 1
@@ -46,10 +48,10 @@ for idx, i in enumerate(np.linspace(start, stop, num)):
             'Tsam': [i + 5, time.time()],
             'scalar_detector': [func(i) + np.random.randn() / 100,
                                 time.time()]}
-    e = insert_event(event_descriptor=e_desc, seq_num=idx,
+    e = insert_event(descriptor=e_desc, seq_num=idx,
                      time=time.time(),
                      data=data)
-last_run = next(find_last())
+last_run = find_last()
 try:
     if str(last_run.id) != str(rs.id):
         print("find_last() is broken")
