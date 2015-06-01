@@ -1,5 +1,4 @@
 import six
-import mongoengine
 from mongoengine.base.datastructures import BaseDict, BaseList
 from mongoengine.base.document import BaseDocument
 from bson.objectid import ObjectId
@@ -261,7 +260,7 @@ def _prettytable(data_keys_dict):
     table.padding_width = 1
     for data_key, key_dict in sorted(data_keys_dict.items()):
         row = [data_key]
-        for k, v in sorted(key_dict.items()):
+        for _, v in sorted(key_dict.items()):
             row.append(v)
         table.add_row(row)
     return table

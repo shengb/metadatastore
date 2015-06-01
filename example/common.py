@@ -1,10 +1,7 @@
 import numpy as np
 import uuid
 from functools import wraps
-from metadatastore.api import (insert_run_start, insert_beamline_config,
-                               insert_run_stop, Document, find_run_stops)
-from metadatastore.commands import reorganize_event
-
+from metadatastore import (insert_run_start, insert_beamline_config, insert_run_stop, find_run_stops)
 
 def stepped_ramp(start, stop, step, points_per_step, noise_level=0.1):
     """
@@ -87,6 +84,6 @@ def example(func):
         if make_run_stop:
             run_stop_uid = insert_run_stop(run_start_uid, time=time,
                                            exit_status='success')
-            run_stop, = find_run_stops(uid=run_stop_uid)
+            find_run_stops(uid=run_stop_uid)
         return events
     return mock_run_start

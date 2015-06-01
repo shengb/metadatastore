@@ -1,9 +1,9 @@
-from metadatastore.examples.sample_data.common import apply_deadband, noisy
-from metadatastore.examples.sample_data import (temperature_ramp,
-                                                multisource_event)
-from metadatastore.utils.testing import mds_setup, mds_teardown
 import numpy as np
 from nose.tools import raises
+
+from example.common import apply_deadband, noisy
+from example import (temperature_ramp, multisource_event)
+from .testing import mds_setup, mds_teardown
 
 def setup():
     mds_setup()
@@ -39,7 +39,6 @@ def test_sleepy_ramp():
 
 def test_multisource_event():
     multisource_event.run()
-
 
 def test_temperature_ramp():
     temperature_ramp.run()

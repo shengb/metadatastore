@@ -7,8 +7,9 @@ import datetime
 import pytz
 from nose.tools import assert_equal, assert_raises, raises
 import metadatastore.commands as mdsc
-from metadatastore.utils.testing import mds_setup, mds_teardown
-from metadatastore.examples.sample_data import temperature_ramp
+
+from .testing import mds_setup, mds_teardown
+from example import temperature_ramp
 
 
 # some useful globals
@@ -327,8 +328,7 @@ def test_normalize_human_friendly_time():
 # smoketests
 
 def test_find_last_for_smoke():
-    last, = mdsc.find_last()
-
+    mdsc.find_last()
 
 if __name__ == "__main__":
     import nose

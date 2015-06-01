@@ -1,8 +1,8 @@
 from __future__ import division
 import uuid
-from metadatastore.api import insert_event, insert_event_descriptor, find_events
+from metadatastore import insert_event, insert_event_descriptor, find_events
 import numpy as np
-from metadatastore.examples.sample_data import common
+import common
 
 # "Magic numbers" for this simulation
 start, stop, step, points_per_step = 0, 3, 1, 7
@@ -59,7 +59,7 @@ def run(run_start=None, sleep=0):
 
 
 if __name__ == '__main__':
-    import metadatastore.api as mdsc
+    import metadatastore as mdsc
     blc_uid = mdsc.insert_beamline_config({}, time=0.)
     run_start_uid = mdsc.insert_run_start(scan_id=2032013,
                                           beamline_id='testbed',

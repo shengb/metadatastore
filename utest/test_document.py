@@ -2,16 +2,11 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import time as ttime
-import datetime
-
-import pytz
-from nose.tools import assert_equal, assert_raises, raises
+# from nose.tools import assert_equal, assert_raises, raises
 import metadatastore.commands as mdsc
-from metadatastore.utils.testing import mds_setup, mds_teardown
-from metadatastore.examples.sample_data import temperature_ramp
-from metadatastore.api import (find_run_starts, find_run_stops,
-                               find_event_descriptors, find_beamline_configs,
-                               find_events)
+from .testing import mds_setup, mds_teardown
+from example import temperature_ramp
+from metadatastore import (find_run_starts, find_run_stops, find_event_descriptors)
 from itertools import product
 import logging
 loglevel = logging.DEBUG
