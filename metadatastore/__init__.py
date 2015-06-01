@@ -18,6 +18,4 @@ from odm_templates import (RunStop, RunStart, Event, EventDescriptor,
                            BeamlineConfig, DataKey)
 
 
-from . import conf, commands, odm_templates
-
 __version__ = 'v0.0.5.post0'

@@ -1,11 +1,11 @@
 from __future__ import print_function
 
-from metadatastore.api import (insert_run_start, insert_beamline_config,
-                               insert_event, insert_event_descriptor,
-                               insert_run_stop)
-from metadatastore.api import find_last, find_events
 import time
 import numpy as np
+
+from metadatastore import (insert_run_start, insert_beamline_config,
+                           insert_event, insert_event_descriptor)
+from metadatastore import find_last, find_events
 
 b_config = insert_beamline_config(config_params={'my_beamline': 'my_value'},
                                   time=time.time())
