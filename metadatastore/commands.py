@@ -3,12 +3,8 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from functools import wraps
 from itertools import count
-from .odm_templates import (RunStart, BeamlineConfig, RunStop,
-                            EventDescriptor, Event, DataKey, ALIAS)
-from .document import Document
-import datetime
 import logging
-from metadatastore import conf
+
 from mongoengine import connect,  ReferenceField
 import mongoengine.connection
 
@@ -17,6 +13,11 @@ import pytz
 
 import uuid
 from bson import ObjectId
+
+from . import conf
+from .document import Document
+from .odm_templates import (RunStart, BeamlineConfig, RunStop,
+                            EventDescriptor, Event, DataKey, ALIAS)
 
 logger = logging.getLogger(__name__)
 
@@ -787,7 +788,7 @@ def find_events(descriptor=None, **kwargs):
     events = events.as_pymongo()
     dref_dict = dict()
     name = Event.__name__
-    for n, f in Event._fields.items():
+    for _, f in Event._fields.items():
         if isinstance(f, ReferenceField):
             lookup_name = f.db_field
             dref_dict[lookup_name] = f
